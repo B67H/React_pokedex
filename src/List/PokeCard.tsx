@@ -2,25 +2,46 @@ import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import PokeMarkChip from "../Common/PokeMarkChip";
 import PokeNameChip from "../Common/PokeNameChip";
+import { useEffect, useState } from "react";
+import {
+  fetchPokemonDetail,
+  PokemonDetailType,
+} from "../Service/pokemonService";
 
 const tempImgUrl =
   "https://png.pngitem.com/pimgs/s/46-468761_pikachu-png-transparent-image-pikachu-png-png-download.png";
 
-const PokeCard = () => {
+interface PokeCardProps {
+  name: string;
+}
+
+const PokeCard = (props: PokeCardProps) => {
   const navigate = useNavigate();
+  const [pokemon, setPokemon] = useState<PokemonDetailType | null>(null);
 
   const handleClick = () => {
-    navigate(`/pokemon/피카츄`);
+    navigate(`/pokemon/${props.name}`);
   };
+
+  useEffect(() => {
+    (async () => {
+      const detail = await fetchPokemonDetail(props.name);
+      setPokemon(detail)
+    })();
+  }, [props.name]);
+
+  if(!pokemon) {
+    return null
+  }
 
   return (
     <div>
       <Item onClick={handleClick}>
         <Header>
-          <PokeNameChip />
+          <PokeNameChip name={pokemon.name} id={pokemon.id}/>
         </Header>
         <Body>
-          <Image src={tempImgUrl} alt="이상해씨" />
+          <Image src={pokemon.images.dreamWorldFront} alt={pokemon.name} />
         </Body>
         <Footer>
           <PokeMarkChip />
@@ -46,7 +67,7 @@ const Item = styled.li`
   transition: transform 0.2s ease-in-out;
 
   &:hover {
-    transform: scale(1.1)
+    transform: scale(1.1);
   }
 
   &:active {
