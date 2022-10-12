@@ -1,15 +1,13 @@
 import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import PokeMarkChip from "../Common/PokeMarkChip";
+import { PokeImageSkeleton } from "../Common/PokeImageSkeleton";
 import PokeNameChip from "../Common/PokeNameChip";
 import { useEffect, useState } from "react";
 import {
   fetchPokemonDetail,
   PokemonDetailType,
 } from "../Service/pokemonService";
-
-const tempImgUrl =
-  "https://png.pngitem.com/pimgs/s/46-468761_pikachu-png-transparent-image-pikachu-png-png-download.png";
 
 interface PokeCardProps {
   name: string;
@@ -26,19 +24,35 @@ const PokeCard = (props: PokeCardProps) => {
   useEffect(() => {
     (async () => {
       const detail = await fetchPokemonDetail(props.name);
-      setPokemon(detail)
+      setPokemon(detail);
     })();
   }, [props.name]);
 
-  if(!pokemon) {
-    return null
+  if (!pokemon) {
+    return (
+      <Item onClick={handleClick} color={"#fff"}>
+        <Header>
+          <PokeNameChip name={"포켓몬"} color={"#ffca09"} id={0} />
+        </Header>
+        <Body>
+          <PokeImageSkeleton />
+        </Body>
+        <Footer>
+          <PokeMarkChip />
+        </Footer>
+      </Item>
+    );
   }
 
   return (
     <div>
-      <Item onClick={handleClick}>
+      <Item onClick={handleClick} color={pokemon.color}>
         <Header>
-          <PokeNameChip name={pokemon.name} id={pokemon.id}/>
+          <PokeNameChip
+            name={pokemon.koreanName}
+            color={pokemon.color}
+            id={pokemon.id}
+          />
         </Header>
         <Body>
           <Image src={pokemon.images.dreamWorldFront} alt={pokemon.name} />
@@ -51,7 +65,7 @@ const PokeCard = (props: PokeCardProps) => {
   );
 };
 
-const Item = styled.li`
+const Item = styled.li<{ color: string }>`
   display: flex;
   flex-direction: column;
 
@@ -71,7 +85,7 @@ const Item = styled.li`
   }
 
   &:active {
-    background-color: yellow;
+    background-color: ${(props) => props.color};
     opacity: 0.8;
     transition: background-color 0s;
   }
