@@ -8,6 +8,7 @@ import {
   fetchPokemonDetail,
   PokemonDetailType,
 } from "../Service/pokemonService";
+import { useIntersectionObserver } from "react-intersection-observer-hook";
 
 interface PokeCardProps {
   name: string;
@@ -16,21 +17,27 @@ interface PokeCardProps {
 const PokeCard = (props: PokeCardProps) => {
   const navigate = useNavigate();
   const [pokemon, setPokemon] = useState<PokemonDetailType | null>(null);
+  const [ref, { entry }] = useIntersectionObserver();
+  const isVisible = entry && entry.isIntersecting;
 
   const handleClick = () => {
     navigate(`/pokemon/${props.name}`);
   };
 
   useEffect(() => {
+    if (!isVisible) {
+      return;
+    }
+
     (async () => {
       const detail = await fetchPokemonDetail(props.name);
       setPokemon(detail);
     })();
-  }, [props.name]);
+  }, [props.name, isVisible]);
 
   if (!pokemon) {
     return (
-      <Item onClick={handleClick} color={"#fff"}>
+      <Item onClick={handleClick} color={"#fff"} ref={ref}>
         <Header>
           <PokeNameChip name={"포켓몬"} color={"#ffca09"} id={0} />
         </Header>
@@ -45,23 +52,21 @@ const PokeCard = (props: PokeCardProps) => {
   }
 
   return (
-    <div>
-      <Item onClick={handleClick} color={pokemon.color}>
-        <Header>
-          <PokeNameChip
-            name={pokemon.koreanName}
-            color={pokemon.color}
-            id={pokemon.id}
-          />
-        </Header>
-        <Body>
-          <Image src={pokemon.images.dreamWorldFront} alt={pokemon.name} />
-        </Body>
-        <Footer>
-          <PokeMarkChip />
-        </Footer>
-      </Item>
-    </div>
+    <Item onClick={handleClick} color={pokemon.color} ref={ref}>
+      <Header>
+        <PokeNameChip
+          name={pokemon.koreanName}
+          color={pokemon.color}
+          id={pokemon.id}
+        />
+      </Header>
+      <Body>
+        <Image src={pokemon.images.dreamWorldFront} alt={pokemon.name} />
+      </Body>
+      <Footer>
+        <PokeMarkChip />
+      </Footer>
+    </Item>
   );
 };
 
