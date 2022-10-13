@@ -7,10 +7,13 @@ import {
 import { useState } from "react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { PokeImageSkeleton } from '../Common/PokeImageSkeleton';
+import { PokeImageSkeleton } from "../Common/PokeImageSkeleton";
+import { useSelector } from "react-redux";
+import { RootState } from "../Store";
 
 const PokemonDetail = () => {
   let { name } = useParams(); // url의 parameter 가져올때 사용
+  const imageType = useSelector((state: RootState) => state.imageType.type);
   const [pokemon, setPokemon] = useState<PokemonDetailType | null>(null);
 
   useEffect(() => {
@@ -26,21 +29,21 @@ const PokemonDetail = () => {
   if (!name || !pokemon) {
     return (
       <Container>
-      <ImageContainer>
-        <PokeImageSkeleton/>
-      </ImageContainer>
-      <Divider></Divider>
-      <Footer>
-        <PokeMarkChip />
-      </Footer>
-    </Container>
+        <ImageContainer>
+          <PokeImageSkeleton />
+        </ImageContainer>
+        <Divider></Divider>
+        <Footer>
+          <PokeMarkChip />
+        </Footer>
+      </Container>
     );
   }
 
   return (
     <Container>
       <ImageContainer>
-        <Image src={pokemon.images.dreamWorldFront} alt={pokemon.koreanName} />
+        <Image src={pokemon.images[imageType]} alt={pokemon.koreanName} />
       </ImageContainer>
       <Divider></Divider>
       <Body>
@@ -105,7 +108,7 @@ const ImageContainer = styled.section`
   justify-content: center;
   align-items: center;
   margin: 8px 0;
-  min-height : 350px;
+  min-height: 350px;
 `;
 
 const Image = styled.img`
