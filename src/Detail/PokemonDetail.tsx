@@ -1,30 +1,27 @@
 import styled from "@emotion/styled";
 import PokeMarkChip from "../Common/PokeMarkChip";
-import {
-  fetchPokemonDetail,
-  PokemonDetailType,
-} from "../Service/pokemonService";
-import { useState } from "react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { PokeImageSkeleton } from "../Common/PokeImageSkeleton";
 import { useSelector } from "react-redux";
-import { RootState } from "../Store";
+import { RootState, useAppDispatch } from "../Store";
+import { fetchPokemonDetail } from "../Store/pokemonDetailSlice";
 
 const PokemonDetail = () => {
   let { name } = useParams(); // url의 parameter 가져올때 사용
   const imageType = useSelector((state: RootState) => state.imageType.type);
-  const [pokemon, setPokemon] = useState<PokemonDetailType | null>(null);
+  const { pokemonDetails } = useSelector(
+    (state: RootState) => state.pokemonDetail
+  );
+  const pokemon = name ? pokemonDetails[name] : null;
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (!name) {
       return;
     }
-    (async () => {
-      const detail = await fetchPokemonDetail(name);
-      setPokemon(detail);
-    })();
-  }, [name]);
+    dispatch(fetchPokemonDetail(name));
+  }, [dispatch, name]);
 
   if (!name || !pokemon) {
     return (
